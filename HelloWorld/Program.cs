@@ -7,11 +7,11 @@ namespace HelloWorld
 	{
 		static void Main(string[] args) {
 			Console.ReadKey(true);
-			//single instance per logical app
+			//ActorSystem is single instance per logical app
 			ActorSystem system = ActorSystem.Create("hello-world-system");
-			//used to instantiate actor instance
+			//Props used to instantiate actor instance
 			Props props = Props.Create<HelloActor>("john");
-			//used to send messages
+			//IActorRef used to send messages
 			IActorRef actor = system.ActorOf(props);
 			actor.Tell("world");
 
