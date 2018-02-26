@@ -13,6 +13,7 @@ namespace HelloWorld
 			Props props = Props.Create<HelloActor>("john");
 			//IActorRef used to send messages
 			IActorRef actor = system.ActorOf(props);
+			//tell is main way to comunicate actor, there is an actor.Ask<T> 
 			actor.Tell("world");
 
 			Console.ReadKey(true);
@@ -28,6 +29,7 @@ namespace HelloWorld
 			_myName = myName;
 		}
 		protected override void OnReceive(object message) {
+			
 			Console.WriteLine($"Hello {message} from {_myName}");
 		}
 	}
