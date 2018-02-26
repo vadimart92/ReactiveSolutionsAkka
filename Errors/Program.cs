@@ -42,10 +42,15 @@ namespace Errors
 					break;
 				}
 				case Exception e:
-					Console.WriteLine("Error");
 					throw e;
 			}
 		}
+
+		public override void AroundPreRestart(Exception cause, object message) {
+			base.AroundPreRestart(cause, message);
+			Console.WriteLine($"Error: {cause.Message}");
+		}
+
 	}
 
 	internal class Superisor : ReceiveActor
