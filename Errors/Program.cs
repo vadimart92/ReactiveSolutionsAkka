@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
-using System.Threading.Tasks;
 using Akka.Actor;
 using Akka.Configuration;
+using Newtonsoft.Json;
 
 namespace Errors
 {
@@ -11,7 +11,7 @@ namespace Errors
 		static void Main(string[] args) {
 			ActorSystem system = ActorSystem.Create("hello-world-system", ConfigurationFactory.ParseString("akka.loglevel = \"OFF\""));
 			var actorToSupervise = Props.Create<DivideActor>();
-			IActorRef actor = system.ActorOf(Props.Create<Superisor>(actorToSupervise));
+			IActorRef actor = system.ActorOf(Props.Create<Supervisor>(actorToSupervise));
 			while (true) {
 				string expression = Console.ReadLine();
 				if (string.IsNullOrWhiteSpace(expression)) {
@@ -48,14 +48,14 @@ namespace Errors
 
 		public override void AroundPreRestart(Exception cause, object message) {
 			base.AroundPreRestart(cause, message);
-			Console.WriteLine($"Error: {cause.Message}");
+			Console.WriteLine($"Error: {cause.Message} on message with type {message.GetType().Name}");
 		}
 
 	}
 
-	internal class Superisor : ReceiveActor
+	internal class Supervisor : ReceiveActor
 	{
-		public Superisor(Props childProps ) {
+		public Supervisor(Props childProps ) {
 
 			var actorToSupervise = Context.ActorOf(childProps);
 
@@ -81,8 +81,10 @@ namespace Errors
 				switch (exception) {
 					case DivideByZeroException _:
 					case IndexOutOfRangeException _:
+						Console.WriteLine($"resuming on: {exception.Message}");
 						return Directive.Resume;
 					case NullReferenceException _:
+						Console.WriteLine($"restarting on: {exception.Message}");
 						return Directive.Restart;
 					default:
 						return Directive.Stop;
