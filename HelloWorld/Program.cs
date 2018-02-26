@@ -13,7 +13,9 @@ namespace HelloWorld
 			Props props = Props.Create<HelloActor>("john");
 			//IActorRef used to send messages
 			IActorRef actor = system.ActorOf(props);
-			//tell is main way to comunicate actor, there is an actor.Ask<T> 
+			//tell is main way to comunicate actor, there is an Ask<T> 
+			// akka.net supports "at most once" delivery semantics, message order between two actors 
+			// preserved (akka specific implementation)
 			actor.Tell("world");
 
 			Console.ReadKey(true);
