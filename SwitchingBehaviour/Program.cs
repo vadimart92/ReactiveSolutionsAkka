@@ -1,9 +1,7 @@
 ﻿namespace SwitchingBehaviour
 {
 	using System;
-	using System.Threading.Tasks;
 	using Akka.Actor;
-	using Akka.Event;
 
 	class Program
 	{
@@ -68,13 +66,4 @@
 
 	}
 
-
-	class Process {
-
-		public static async Task ExecuteAsync(int elementId) {
-			Console.WriteLine($"Executing element: {elementId}");
-			await Task.Delay(TimeSpan.FromSeconds(2));
-		}
-
-	}
 }
