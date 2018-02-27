@@ -7,11 +7,11 @@
 	{
 		static void Main(string[] args) {
 			ActorSystem system = ActorSystem.Create("bpmonline");
-			var processActor = system.ActorOf(Props.Create<ProcessInstanceActor>());
+			var processInstanceActor = system.ActorOf(Props.Create<ProcessInstanceActor>());
 			while (true) {
 				int elementId = int.Parse(Console.ReadKey().KeyChar.ToString());
 				Console.WriteLine();
-				processActor.Tell(new ProcessInstanceActor.ContinueFrom(elementId));
+				processInstanceActor.Tell(new ProcessInstanceActor.Continue(elementId));
 			}
 		}
 	}
@@ -22,16 +22,24 @@
 
 		#region Mesasges
 
-		public class ContinueFrom
+		public class MsgWithElemenId
 		{
 
-			public ContinueFrom(int id) {
+			public MsgWithElemenId(int id) {
 				ElementId = id;
 			}
 			public int ElementId { get; private set; }
 		}
 
-		private class Completed : ContinueFrom {
+		public class Continue : MsgWithElemenId
+		{
+
+			public Continue(int id)
+				: base(id) { }
+
+		}
+		public class Completed : MsgWithElemenId
+		{
 
 			public Completed(int id)
 				: base(id) { }
@@ -42,25 +50,27 @@
 		#endregion
 
 		public ProcessInstanceActor() {
-			Become(Ready);
+			Become(Idle);
 		}
 
-		private void Ready() {
-			Receive<ContinueFrom>(from => {
-				Process.ExecuteAsync(from.ElementId).ContinueWith(task => new Completed(from.ElementId)).PipeTo(Self);
-				Become(Working);
+		private void Idle() {
+			Receive<Continue>(from => {
+				Process.ExecuteAsync(from.ElementId)
+					.ContinueWith(task => new Completed(from.ElementId))
+					.PipeTo(Self);
+				Become(Busy);
 			});
 		}
 
-		private void Working() {
-			Receive<Completed>(completed => {
-				Console.WriteLine($"\t {completed.ElementId} completed.");
-				Become(Ready);
-				Stash.UnstashAll();
-			});
-			Receive<ContinueFrom>(from => {
-				Console.WriteLine($"\t {from.ElementId} wait please!");
+		private void Busy() {
+			Receive<Continue>(from => {
+				Console.WriteLine($"\t\t {from.ElementId} wait please!");
 				Stash.Stash();
+			});
+			Receive<Completed>(completed => {
+				Console.WriteLine($"\t\t {completed.ElementId} completed.");
+				Stash.UnstashAll();
+				Become(Idle);
 			});
 		}
 
