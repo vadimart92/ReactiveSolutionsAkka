@@ -7,13 +7,15 @@ using Remote.Common;
 
 namespace Remote.App
 {
-	class Program
-	{
+	using System.IO;
+
+	class Program {
 		
 		static void Main(string[] args) {
+			Console.WriteLine("Demo. Remote. Press key to start.");
 			Console.ReadKey(true);
-			var system = ActorSystem.Create("remoteDeploy", _config);
-			var worker = RemoteDeploy(system);
+			var system = ActorSystem.Create("remoteDeploy", ConfigurationFactory.ParseString(File.ReadAllText("Remote.App.hocon")));
+			var worker = Pool(system);
 			var client = system.ActorOf(Props.Create(() => new ClientActor(worker)));
 			for (int i = 0; i < 5; i++) {
 				client.Tell(new ClientActor.Start());
@@ -23,13 +25,12 @@ namespace Remote.App
 
 		private static IActorRef Single(ActorSystem system) {
 			var props = Props.Create<WorkerActor>();
-			return system.ActorOf(props, "localWorker");
+			return system.ActorOf(props, "worker");
 		}
 
-		private static IActorRef Pool(ActorSystem system)
-		{
+		private static IActorRef Pool(ActorSystem system) {
 			var props = Props.Create<WorkerActor>().WithRouter(new RoundRobinPool(10));
-			return system.ActorOf(props, "localWorker");
+			return system.ActorOf(props, "worker");
 		}
 
 		private static IActorRef Group(ActorSystem system) {
@@ -38,14 +39,6 @@ namespace Remote.App
 			system.ActorOf(props, "localWorker2");
 			return system.ActorOf(Props.Empty.WithRouter(new RoundRobinGroup("/user/localWorker1",
 				"/user/localWorker2")), "group");
-		}
-
-		private static IActorRef RemoteDeploy(ActorSystem system) {
-			var props = Props.Create<WorkerActor>()
-				.WithRouter(new RoundRobinPool(10))
-				.WithDeploy(Deploy.None
-					.WithScope(new RemoteScope(Address.Parse("akka.tcp://remoteDeploy@localhost:8080"))));
-			return system.ActorOf(props, "remoteWorker");
 		}
 
 		class ClientActor:ReceiveActor
@@ -69,20 +62,6 @@ namespace Remote.App
 				});
 			}
 		}
-
-		private static Config _config = ConfigurationFactory.ParseString(@"
-				akka {  
-					loglevel = ""OFF""
-					actor{
-						provider = ""Akka.Remote.RemoteActorRefProvider, Akka.Remote""
-					}
-					remote {
-						dot-netty.tcp {
-							port = 0
-							hostname = localhost
-						}
-					}
-				}");
 
 	}
 }

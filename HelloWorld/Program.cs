@@ -6,6 +6,7 @@ namespace HelloWorld
 	class Program
 	{
 		static void Main(string[] args) {
+			Console.WriteLine("Demo. Hello world");
 			Console.ReadKey(true);
 			//ActorSystem is single instance per logical app
 			ActorSystem system = ActorSystem.Create("hello-world-system");

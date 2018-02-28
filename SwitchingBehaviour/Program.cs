@@ -6,6 +6,7 @@
 	class Program
 	{
 		static void Main(string[] args) {
+			Console.WriteLine("Demo. Switching Behaviour");
 			ActorSystem system = ActorSystem.Create("bpmonline");
 			var processInstanceActor = system.ActorOf(Props.Create<ProcessInstanceActor>());
 			while (true) {

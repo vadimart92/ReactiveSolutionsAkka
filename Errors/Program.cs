@@ -9,6 +9,7 @@ namespace Errors
 	class Program
 	{
 		static void Main(string[] args) {
+			Console.WriteLine("Demo. Errors");
 			ActorSystem system = ActorSystem.Create("hello-world-system", ConfigurationFactory.ParseString("akka.loglevel = \"OFF\""));
 			var actorToSupervise = Props.Create<DivideActor>();
 			IActorRef actor = system.ActorOf(Props.Create<Supervisor>(actorToSupervise));

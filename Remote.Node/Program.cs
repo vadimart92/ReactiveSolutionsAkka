@@ -20,7 +20,7 @@ namespace Remote.Node
 					}
 					remote {
 						dot-netty.tcp {
-							port = 8080
+							port = 1080
 							hostname = localhost
 						}
 					}
