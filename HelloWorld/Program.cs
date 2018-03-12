@@ -3,6 +3,8 @@ using Akka.Actor;
 
 namespace HelloWorld
 {
+	using System.Threading;
+
 	class Program
 	{
 		static void Main(string[] args) {
@@ -19,9 +21,9 @@ namespace HelloWorld
 			// preserved (akka specific implementation)
 			actor.Tell("world");
 
-			Console.ReadKey(true);
+			
 			system.Terminate();
-			system.WhenTerminated.Wait();
+			Console.ReadKey(true);
 		}
 	}
 
@@ -32,7 +34,7 @@ namespace HelloWorld
 			_myName = myName;
 		}
 		protected override void OnReceive(object message) {
-			
+			Thread.Sleep(TimeSpan.FromDays(1));
 			Console.WriteLine($"Hello {message} from {_myName}");
 		}
 	}

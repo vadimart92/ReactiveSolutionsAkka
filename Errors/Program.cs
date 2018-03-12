@@ -54,41 +54,41 @@ namespace Errors
 
 			var actorToSupervise = Context.ActorOf(childProps);
 
-			////3
-			//Context.Watch(actorToSupervise);
-			//Receive<Terminated>(terminated => {
-			//	if (terminated.ActorRef.Equals(actorToSupervise)) {
-			//		actorToSupervise = ActorRefs.Nobody;
-			//		Console.WriteLine("Actor died");
-			//	}
-			//});
+			//3 - Deathwatch
+			Context.Watch(actorToSupervise);
+			Receive<Terminated>(terminated => {
+				if (terminated.ActorRef.Equals(actorToSupervise)) {
+					actorToSupervise = ActorRefs.Nobody;
+					Console.WriteLine("Actor died");
+				}
+			});
 
 			Receive<object>(msg => {
-				////3
-				//if (actorToSupervise.IsNobody()) {
-				//	Console.WriteLine("too many errors");
-				//	return;
-				//}
+				//3
+				if (actorToSupervise.IsNobody()) {
+					Console.WriteLine("too many errors");
+					return;
+				}
 				actorToSupervise.Forward(msg);
 			});
 		}
 
-		//// 2 
-		//protected override SupervisorStrategy SupervisorStrategy() {
-		//	return new OneForOneStrategy(3, TimeSpan.FromSeconds(2), new LocalOnlyDecider(exception => {
-		//		switch (exception) {
-		//			case DivideByZeroException _:
-		//			case IndexOutOfRangeException _:
-		//				Console.WriteLine($"resuming on: {exception.Message}");
-		//				return Directive.Resume;
-		//			case NullReferenceException _:
-		//				Console.WriteLine($"restarting on: {exception.Message}");
-		//				return Directive.Restart;
-		//			default:
-		//				return Directive.Stop;
-		//		}
-		//	}));
-		//}
+		 //2 
+		protected override SupervisorStrategy SupervisorStrategy() {
+			return new OneForOneStrategy(3, TimeSpan.FromSeconds(2), new LocalOnlyDecider(exception => {
+				switch (exception) {
+					case DivideByZeroException _:
+					case IndexOutOfRangeException _:
+						Console.WriteLine($"resuming on: {exception.Message}");
+						return Directive.Stop;
+					case NullReferenceException _:
+						Console.WriteLine($"restarting on: {exception.Message}");
+						return Directive.Restart;
+					default:
+						return Directive.Stop;
+				}
+			}));
+		}
 
 	}
 

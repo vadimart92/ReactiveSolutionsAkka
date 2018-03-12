@@ -23,22 +23,25 @@ namespace Remote.App
 			Console.ReadKey(true);
 		}
 
+		// 1
 		private static IActorRef Single(ActorSystem system) {
 			var props = Props.Create<WorkerActor>();
 			return system.ActorOf(props, "worker");
 		}
-
-		private static IActorRef Pool(ActorSystem system) {
-			var props = Props.Create<WorkerActor>().WithRouter(new RoundRobinPool(10));
-			return system.ActorOf(props, "worker");
-		}
-
+		
+		// 2
 		private static IActorRef Group(ActorSystem system) {
 			var props = Props.Create<WorkerActor>();
 			system.ActorOf(props, "localWorker1");
 			system.ActorOf(props, "localWorker2");
 			return system.ActorOf(Props.Empty.WithRouter(new RoundRobinGroup("/user/localWorker1",
 				"/user/localWorker2")), "group");
+		}
+
+		// 3
+		private static IActorRef Pool(ActorSystem system) {
+			var props = Props.Create<WorkerActor>().WithRouter(new RoundRobinPool(10));
+			return system.ActorOf(props, "worker");
 		}
 
 		class ClientActor:ReceiveActor

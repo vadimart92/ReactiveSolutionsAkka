@@ -3,7 +3,7 @@
 	actor{
 		provider = "Akka.Remote.RemoteActorRefProvider, Akka.Remote"
 		deployment {
-			/worker1 {
+			/worker {
 				remote = "akka.tcp://remoteDeploy@localhost:1080"
 			}
 		}
